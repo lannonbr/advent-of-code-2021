@@ -47,24 +47,16 @@ impl Board {
     }
     fn all_bingos(&mut self) {
         let mut all: Vec<Vec<(usize, usize)>> = vec![];
-        // normal rows
-        for i in 0..self.board.len() {
-            let row: Vec<(usize, usize)> = self.board[i]
-                .iter()
-                .enumerate()
-                .map(|(j, _)| (i, j))
-                .collect();
 
-            all.push(row);
-        }
-
-        // Normal cols
         for i in 0..self.board.len() {
+            let mut row: Vec<(usize, usize)> = vec![];
             let mut col: Vec<(usize, usize)> = vec![];
             for j in 0..self.board[i].len() {
+                row.push((i, j));
                 col.push((j, i));
             }
 
+            all.push(row);
             all.push(col);
         }
 
