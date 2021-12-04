@@ -1,9 +1,31 @@
 use std::{collections::HashMap, fmt::Display};
 
+#[macro_use]
+extern crate lazy_static;
+
+lazy_static! {
+    static ref WIN_LOCATIONS: Vec<Vec<(usize, usize)>> = {
+        let mut wins_locations: Vec<Vec<(usize, usize)>> = vec![];
+
+        for i in 0..5 {
+            let mut row: Vec<(usize, usize)> = vec![];
+            let mut col: Vec<(usize, usize)> = vec![];
+            for j in 0..5 {
+                row.push((i, j));
+                col.push((j, i));
+            }
+
+            wins_locations.push(row);
+            wins_locations.push(col);
+        }
+
+        wins_locations
+    };
+}
+
 struct Board {
     board: Vec<Vec<(u64, bool)>>,
     solved: bool,
-    all_wins: Vec<Vec<(usize, usize)>>,
 }
 
 impl Display for Board {
@@ -34,36 +56,17 @@ impl Board {
                 nums
             })
             .collect();
-        let mut b = Board {
+        Board {
             board,
             solved: false,
-            all_wins: vec![],
-        };
-        b.all_bingos();
-        b
+        }
     }
     fn hit(&mut self, i: usize, j: usize) {
         self.board[i][j].1 = true
     }
-    fn all_bingos(&mut self) {
-        let mut all: Vec<Vec<(usize, usize)>> = vec![];
 
-        for i in 0..self.board.len() {
-            let mut row: Vec<(usize, usize)> = vec![];
-            let mut col: Vec<(usize, usize)> = vec![];
-            for j in 0..self.board[i].len() {
-                row.push((i, j));
-                col.push((j, i));
-            }
-
-            all.push(row);
-            all.push(col);
-        }
-
-        self.all_wins = all;
-    }
     fn check_for_bingo(&self) -> bool {
-        let f = &self.all_wins;
+        let f = &WIN_LOCATIONS;
         for list in f.iter() {
             'inner: for (e, (i, j)) in list.iter().enumerate() {
                 let on = self.board.iter().nth(*i).unwrap().iter().nth(*j).unwrap().1;
