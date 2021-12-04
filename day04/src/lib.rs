@@ -2,6 +2,8 @@ use std::{collections::HashMap, fmt::Display};
 
 struct Board {
     board: Vec<Vec<(u64, bool)>>,
+    solved: bool,
+    all_wins: Vec<Vec<(usize, usize)>>,
 }
 
 impl Display for Board {
@@ -32,12 +34,18 @@ impl Board {
                 nums
             })
             .collect();
-        Board { board }
+        let mut b = Board {
+            board,
+            solved: false,
+            all_wins: vec![],
+        };
+        b.all_bingos();
+        b
     }
     fn hit(&mut self, i: usize, j: usize) {
         self.board[i][j].1 = true
     }
-    fn all_bingos(&self) -> Vec<Vec<(usize, usize)>> {
+    fn all_bingos(&mut self) {
         let mut all: Vec<Vec<(usize, usize)>> = vec![];
         // normal rows
         for i in 0..self.board.len() {
@@ -60,10 +68,10 @@ impl Board {
             all.push(col);
         }
 
-        all
+        self.all_wins = all;
     }
     fn check_for_bingo(&self) -> bool {
-        let f = self.all_bingos();
+        let f = &self.all_wins;
         for list in f.iter() {
             'inner: for (e, (i, j)) in list.iter().enumerate() {
                 let on = self.board.iter().nth(*i).unwrap().iter().nth(*j).unwrap().1;
@@ -116,6 +124,7 @@ pub fn process(input: &str) -> Option<u64> {
             let res = board.check_for_bingo();
             if res {
                 let sum = board.sum_unmarked();
+                board.solved = true;
 
                 return Some(sum * num);
             }
@@ -139,10 +148,13 @@ pub fn process_pt2(input: &str) -> Option<u64> {
         .map(|&l| Board::new(l))
         .collect();
 
-    let mut wins: HashMap<usize, (usize, u64, Board)> = HashMap::new();
+    let mut wins: HashMap<usize, (usize, u64)> = HashMap::new();
 
     for (a, &num) in numbers.iter().enumerate() {
-        for (e, board) in boards.iter_mut().enumerate() {
+        'board_loop: for (e, board) in boards.iter_mut().enumerate() {
+            if board.solved {
+                continue 'board_loop;
+            }
             for i in 0..board.board.len() {
                 for j in 0..board.board[i].len() {
                     if board.board[i][j].0 == num {
@@ -153,16 +165,14 @@ pub fn process_pt2(input: &str) -> Option<u64> {
             let res = board.check_for_bingo();
             if res {
                 if wins.get(&e).is_none() {
-                    let s_board: Board = Board {
-                        board: board.board.clone(),
-                    };
-                    wins.insert(e, (a, num, s_board));
+                    board.solved = true;
+                    wins.insert(e, (a, num));
                 }
             }
         }
     }
 
-    let (_, last_board_details) = wins
+    let (&e, last_board_details) = wins
         .iter()
         .max_by(|x, y| {
             let x1 = x.1;
@@ -174,7 +184,7 @@ pub fn process_pt2(input: &str) -> Option<u64> {
         .unwrap();
 
     let num = last_board_details.1;
-    let last_board = &last_board_details.2;
+    let last_board = &boards[e];
 
     Some(last_board.sum_unmarked() * num)
 }
