@@ -69,7 +69,7 @@ impl Board {
         let f = &WIN_LOCATIONS;
         for list in f.iter() {
             'inner: for (e, (i, j)) in list.iter().enumerate() {
-                let on = self.board.iter().nth(*i).unwrap().iter().nth(*j).unwrap().1;
+                let on = self.board[*i][*j].1;
                 if on == false {
                     break 'inner;
                 }
