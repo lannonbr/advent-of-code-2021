@@ -61,8 +61,15 @@ impl Board {
             solved: false,
         }
     }
-    fn hit(&mut self, i: usize, j: usize) {
-        self.board[i][j].1 = true
+    fn mark(&mut self, num: u64) {
+        for i in 0..self.board.len() {
+            for j in 0..self.board[i].len() {
+                if self.board[i][j].0 == num {
+                    self.board[i][j].1 = true;
+                    return;
+                }
+            }
+        }
     }
 
     fn check_for_bingo(&self) -> bool {
@@ -109,15 +116,9 @@ pub fn process(input: &str) -> Option<u64> {
 
     for &num in numbers.iter() {
         for board in boards.iter_mut() {
-            for i in 0..board.board.len() {
-                for j in 0..board.board[i].len() {
-                    if board.board[i][j].0 == num {
-                        board.hit(i, j)
-                    }
-                }
-            }
-            let res = board.check_for_bingo();
-            if res {
+            board.mark(num);
+
+            if board.check_for_bingo() {
                 let sum = board.sum_unmarked();
                 board.solved = true;
 
@@ -150,15 +151,10 @@ pub fn process_pt2(input: &str) -> Option<u64> {
             if board.solved {
                 continue 'board_loop;
             }
-            for i in 0..board.board.len() {
-                for j in 0..board.board[i].len() {
-                    if board.board[i][j].0 == num {
-                        board.hit(i, j)
-                    }
-                }
-            }
-            let res = board.check_for_bingo();
-            if res {
+
+            board.mark(num);
+
+            if board.check_for_bingo() {
                 if wins.get(&e).is_none() {
                     board.solved = true;
                     wins.insert(e, (a, num));
