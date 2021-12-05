@@ -44,21 +44,21 @@ pub fn process(input: &str) -> Option<u64> {
     for l in lines.iter_mut() {
         if l.is_horizontal() {
             if l.x1 > l.x2 {
-                for c in l.x2..(l.x1 + 1) {
+                for c in l.x2..=l.x1 {
                     grid[c as usize][l.y1 as usize] += 1;
                 }
             } else {
-                for c in l.x1..(l.x2 + 1) {
+                for c in l.x1..=l.x2 {
                     grid[c as usize][l.y1 as usize] += 1;
                 }
             }
         } else if l.is_vertical() {
             if l.y1 > l.y2 {
-                for c in l.y2..(l.y1 + 1) {
+                for c in l.y2..=l.y1 {
                     grid[l.x1 as usize][c as usize] += 1;
                 }
             } else {
-                for c in l.y1..(l.y2 + 1) {
+                for c in l.y1..=l.y2 {
                     grid[l.x1 as usize][c as usize] += 1;
                 }
             }
@@ -93,21 +93,21 @@ pub fn process_pt2(input: &str) -> Option<u64> {
     for l in lines.iter_mut() {
         if l.is_horizontal() {
             if l.x1 > l.x2 {
-                for c in l.x2..(l.x1 + 1) {
+                for c in l.x2..=l.x1 {
                     grid[c as usize][l.y1 as usize] += 1;
                 }
             } else {
-                for c in l.x1..(l.x2 + 1) {
+                for c in l.x1..=l.x2 {
                     grid[c as usize][l.y1 as usize] += 1;
                 }
             }
         } else if l.is_vertical() {
             if l.y1 > l.y2 {
-                for c in l.y2..(l.y1 + 1) {
+                for c in l.y2..=l.y1 {
                     grid[l.x1 as usize][c as usize] += 1;
                 }
             } else {
-                for c in l.y1..(l.y2 + 1) {
+                for c in l.y1..=l.y2 {
                     grid[l.x1 as usize][c as usize] += 1;
                 }
             }
