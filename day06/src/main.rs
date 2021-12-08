@@ -15,10 +15,10 @@ fn main() -> Result<(), std::io::Error> {
     let input = fs::read_to_string(&args[1])?;
 
     let pt1_result = process(&input, 80).unwrap();
-    // let pt2_result = process(&input, 256).unwrap();
+    let pt2_result = process(&input, 256).unwrap();
 
     println!("Result 1: {}", pt1_result);
-    // println!("Result 2: {}", pt2_result);
+    println!("Result 2: {}", pt2_result);
     Ok(())
 }
 
