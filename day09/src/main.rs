@@ -14,10 +14,10 @@ fn main() -> Result<(), std::io::Error> {
 
     let input = fs::read_to_string(&args[1])?;
 
-    // let pt1_result = process(&input).unwrap();
+    let pt1_result = process(&input).unwrap();
     let pt2_result = process_pt2(&input).unwrap();
 
-    // println!("Result 1: {}", pt1_result);
+    println!("Result 1: {}", pt1_result);
     println!("Result 2: {}", pt2_result);
     Ok(())
 }
