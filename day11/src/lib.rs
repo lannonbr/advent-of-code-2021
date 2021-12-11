@@ -52,10 +52,8 @@ fn step(input: &mut Vec<Vec<u32>>) -> usize {
                     input[x][y] += 1;
                 }
             } else {
-                if flashed_map.get(&(x as i32, y as i32)).is_none() {
-                    flashed_map.insert((x as i32, y as i32), true);
-                    flash(input, x as i32, y as i32, &mut flashed_map);
-                }
+                flashed_map.insert((x as i32, y as i32), true);
+                flash(input, x as i32, y as i32, &mut flashed_map);
             }
         }
     }
