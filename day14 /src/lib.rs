@@ -8,13 +8,19 @@ use nom::{
     IResult,
 };
 
-fn mapping(input: &str) -> IResult<&str, (&str, char)> {
+fn mapping(input: &str) -> IResult<&str, ((char, char), char)> {
     let (input, (left, right)) = separated_pair(alpha1, tag(" -> "), anychar)(input)?;
 
-    Ok((input, (left, right)))
+    Ok((
+        input,
+        (
+            (left.chars().nth(0).unwrap(), left.chars().nth(1).unwrap()),
+            right,
+        ),
+    ))
 }
 
-fn puzzle_input(input: &str) -> IResult<&str, (&str, HashMap<&str, char>)> {
+fn puzzle_input(input: &str) -> IResult<&str, (&str, HashMap<(char, char), char>)> {
     let (input, starting_line) = take_until("\n")(input)?;
     let (input, _) = newline(input)?;
     let (input, _) = newline(input)?;
@@ -23,84 +29,70 @@ fn puzzle_input(input: &str) -> IResult<&str, (&str, HashMap<&str, char>)> {
     Ok((input, (starting_line, mappings)))
 }
 
-pub fn process(input: &str) -> Option<u64> {
-    let (_, (starting_input, mappings)) = puzzle_input(input).unwrap();
-
-    let vec: Vec<char> = starting_input.chars().collect::<Vec<char>>();
+fn run_str(s: Vec<char>, mappings: &HashMap<(char, char), char>, count: usize) -> u64 {
+    let vec = s.clone();
 
     let last_char = *vec.last().unwrap();
 
-    let mut count_map = run_str(vec, &mappings, 10);
+    let mut state: HashMap<(char, char), u64> = HashMap::new();
 
-    let en = count_map.entry(last_char).or_default();
-    *en += 1;
+    for a in vec.windows(2) {
+        state
+            .entry((a[0], a[1]))
+            .and_modify(|c| *c += 1)
+            .or_insert(1);
+    }
+
+    for _ in 0..count {
+        let mut new_state: HashMap<(char, char), u64> = HashMap::new();
+
+        for (ident, current_count) in state.iter() {
+            let new_char = *mappings.get(&ident).unwrap();
+            new_state
+                .entry((ident.0, new_char))
+                .and_modify(|c| *c += current_count)
+                .or_insert(*current_count);
+            new_state
+                .entry((new_char, ident.1))
+                .and_modify(|c| *c += current_count)
+                .or_insert(*current_count);
+        }
+
+        state = new_state;
+    }
+
+    let mut count_map: HashMap<char, u64> = HashMap::new();
+
+    for a in state.iter().map(|(a, c)| (a.0, c)) {
+        count_map
+            .entry(a.0)
+            .and_modify(|f| *f += *a.1)
+            .or_insert(*a.1);
+    }
+
+    count_map
+        .entry(last_char)
+        .and_modify(|f| *f += 1)
+        .or_insert(1);
 
     let largest = count_map.iter().max_by(|a, b| a.1.cmp(&b.1)).unwrap();
     let smallest = count_map.iter().min_by(|a, b| a.1.cmp(&b.1)).unwrap();
 
-    Some(largest.1 - smallest.1)
+    largest.1 - smallest.1
 }
 
-fn run_str(s: Vec<char>, mappings: &HashMap<&str, char>, count: usize) -> HashMap<char, u64> {
-    let mut vec = s.clone();
+pub fn process(input: &str) -> Option<u64> {
+    let (_, (starting_input, mappings)) = puzzle_input(input).unwrap();
 
-    for i in 0..count {
-        let mut new_vec: Vec<char> = vec![];
+    let s: Vec<char> = starting_input.chars().collect::<Vec<char>>();
 
-        vec.windows(2)
-            .map(|a| String::from_iter(a.iter()))
-            .for_each(|a| {
-                let new_char = *mappings.get(a.as_str()).unwrap();
-                new_vec.push(a.chars().nth(0).unwrap());
-                new_vec.push(new_char);
-            });
-        let last_char = *vec.last().unwrap();
-        new_vec.push(last_char);
-
-        vec = new_vec;
-
-        let c: String = vec.iter().collect();
-        println!("{}, (len {})", i, c.len());
-    }
-    vec.pop();
-
-    let mut count_map: HashMap<char, u64> = HashMap::new();
-
-    for &c in vec.iter() {
-        let en = count_map.entry(c).or_default();
-        *en += 1;
-    }
-
-    count_map
+    Some(run_str(s, &mappings, 10))
 }
 
 pub fn process_pt2(input: &str) -> Option<u64> {
     let (_, (starting_input, mappings)) = puzzle_input(input).unwrap();
 
-    let vec: Vec<char> = starting_input.chars().collect::<Vec<char>>();
+    let s = starting_input.chars().collect::<Vec<char>>();
 
-    let last_char = *vec.last().unwrap();
-
-    let mut count_map: HashMap<char, u64> = HashMap::new();
-
-    vec.windows(2)
-        .map(|a| String::from_iter(a.iter()))
-        .for_each(|a| {
-            let mini_count = run_str(a.chars().collect::<Vec<char>>(), &mappings, 40);
-
-            for (c, u) in mini_count {
-                let en = count_map.entry(c).or_default();
-                *en += u;
-            }
-        });
-
-    let en = count_map.entry(last_char).or_default();
-    *en += 1;
-
-    let largest = count_map.iter().max_by(|a, b| a.1.cmp(&b.1)).unwrap();
-    let smallest = count_map.iter().min_by(|a, b| a.1.cmp(&b.1)).unwrap();
-
-    dbg!(smallest, largest);
-
-    Some(largest.1 - smallest.1)
+    Some(run_str(s, &mappings, 40))
 }
