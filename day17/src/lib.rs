@@ -1,3 +1,5 @@
+use nom::{bytes::complete::tag, character::complete::i64, sequence::separated_pair, IResult};
+
 #[derive(Debug)]
 struct Target {
     x0: isize,
@@ -23,6 +25,21 @@ impl Target {
     }
 }
 
+fn parse_target(input: &str) -> IResult<&str, Target> {
+    let (input, _) = tag("target area: x=")(input)?;
+    let (input, (x0, x1)) = separated_pair(i64, tag(".."), i64)(input)?;
+    let (input, _) = tag(", y=")(input)?;
+    let (input, (y0, y1)) = separated_pair(i64, tag(".."), i64)(input)?;
+
+    let target = Target {
+        x0: x0 as isize,
+        x1: x1 as isize,
+        y0: y0 as isize,
+        y1: y1 as isize,
+    };
+    Ok((input, target))
+}
+
 fn run_vel(t: &Target, vel: Velocity) -> RunResult {
     let mut x: isize = 0;
     let mut y: isize = 0;
@@ -40,8 +57,6 @@ fn run_vel(t: &Target, vel: Velocity) -> RunResult {
             vel_x += 1;
         } else if vel_x > 0 {
             vel_x -= 1;
-        } else {
-            // X is at 0, don't do anything
         }
 
         vel_y -= 1;
@@ -61,25 +76,7 @@ fn run_vel(t: &Target, vel: Velocity) -> RunResult {
 }
 
 pub fn process(input: &str) -> Option<i64> {
-    let s: Vec<&str> = input.split_whitespace().collect();
-
-    let x_range = s[2]
-        .split_once('=')
-        .unwrap()
-        .1
-        .split_once(",")
-        .unwrap()
-        .0
-        .split_once("..")
-        .unwrap();
-    let y_range = s[3].split_once('=').unwrap().1.split_once("..").unwrap();
-
-    let x0 = isize::from_str_radix(x_range.0, 10).unwrap();
-    let x1 = isize::from_str_radix(x_range.1, 10).unwrap();
-    let y0 = isize::from_str_radix(y_range.0, 10).unwrap();
-    let y1 = isize::from_str_radix(y_range.1, 10).unwrap();
-
-    let target = Target { x0, x1, y0, y1 };
+    let (_, target) = parse_target(input).unwrap();
 
     let mut results: Vec<(Velocity, isize)> = vec![];
 
@@ -100,25 +97,7 @@ pub fn process(input: &str) -> Option<i64> {
 }
 
 pub fn process_pt2(input: &str) -> Option<u64> {
-    let s: Vec<&str> = input.split_whitespace().collect();
-
-    let x_range = s[2]
-        .split_once('=')
-        .unwrap()
-        .1
-        .split_once(",")
-        .unwrap()
-        .0
-        .split_once("..")
-        .unwrap();
-    let y_range = s[3].split_once('=').unwrap().1.split_once("..").unwrap();
-
-    let x0 = isize::from_str_radix(x_range.0, 10).unwrap();
-    let x1 = isize::from_str_radix(x_range.1, 10).unwrap();
-    let y0 = isize::from_str_radix(y_range.0, 10).unwrap();
-    let y1 = isize::from_str_radix(y_range.1, 10).unwrap();
-
-    let target = Target { x0, x1, y0, y1 };
+    let (_, target) = parse_target(input).unwrap();
 
     let mut results: Vec<(Velocity, isize)> = vec![];
 

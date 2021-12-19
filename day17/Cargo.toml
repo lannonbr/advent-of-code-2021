@@ -5,3 +5,4 @@ authors = ["Benjamin Lannon <benjamin@lannonbr.com>"]
 edition = "2021"
 
 [dependencies]
+nom = "7.1.0"
