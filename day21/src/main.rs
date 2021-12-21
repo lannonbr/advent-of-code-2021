@@ -37,19 +37,21 @@ Player 2 starting position: 8"
         );
     }
 
-    //     #[test]
-    //     fn test_input_pt2() {
-    //         assert_eq!(
-    //             process_pt2(
-    //                 "Player 1 starting position: 4
-    // Player 2 starting position: 8"
-    //             ),
-    //             Some(444356092776315)
-    //         );
-    //     }
+    #[test]
+    fn test_input_pt2() {
+        assert_eq!(
+            process_pt2(
+                "Player 1 starting position: 4
+    Player 2 starting position: 8"
+            ),
+            Some(444356092776315)
+        );
+    }
 }
 
 /*
+All possible rolls:
+
 111 - 3
 112 - 4
 113 - 5
@@ -80,7 +82,7 @@ Player 2 starting position: 8"
 332 - 8
 333 - 9
 
-[(3,1), (4,3), (5,6), (6,7), (7,6), (8,3), (9,1)]
+Therefore, here is a mapping of possible rolls to how many times they appear in all permutations
 
 3 - 1 times
 4 - 3 times
@@ -89,5 +91,4 @@ Player 2 starting position: 8"
 7 - 6 times
 8 - 3 times
 9 - 1 time
-
 */
